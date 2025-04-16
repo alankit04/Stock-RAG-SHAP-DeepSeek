@@ -93,7 +93,7 @@ This integrates prediction output with retrieved knowledge via DeepSeek to gener
 
 This repository is licensed under the **MIT License**.
 
-## 🙏 Acknowledgements
+##  References
 
 - [SHAP](https://github.com/slundberg/shap) – For game-theoretic explainability
 - [XGBoost](https://github.com/dmlc/xgboost) – Core model engine
