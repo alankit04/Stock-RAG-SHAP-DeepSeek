@@ -7,6 +7,14 @@ import subprocess
 import datetime
 import requests
 import re
+import os
+import shutil
+
+# === Ollama Availability Check ===
+def check_ollama():
+    if shutil.which("ollama") is None:
+        print("❌ Ollama is not installed. Install from https://ollama.ai then run: ollama pull deepseek-r1")
+        exit(1)
 
 # === Initialize ChromaDB & Embedder ===
 client = chromadb.Client()
@@ -15,7 +23,7 @@ collection = client.get_or_create_collection(collection_name)
 embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
 # === Alpha Vantage Setup ===
-API_KEY = "2JFPKWMSYBKW2JA3"
+API_KEY = os.environ.get("ALPHA_VANTAGE_KEY", "")
 BASE_URL = "https://www.alphavantage.co/query"
 
 # === Load Tickers from Stock_data.csv ===
@@ -72,8 +80,11 @@ def fetch_stock_plot_and_text(symbol):
 
 # === Preprocess & Index ===
 def preprocess_and_index():
-    # CSV Summary
-    csv_df = pd.read_csv("y_test_subset.csv")
+    if not API_KEY:
+        print("❌ ALPHA_VANTAGE_KEY environment variable is not set. Live stock data will be skipped.")
+
+    # CSV Summary — use feature data (X_test), not labels (y_test)
+    csv_df = pd.read_csv("X_test_subset.csv")
     csv_text = "CSV Summary:\n" + csv_df.describe().to_string() + "\n\nSample Rows:\n" + csv_df.head(5).to_string()
 
     # SHAP Image Text
@@ -97,7 +108,10 @@ def preprocess_and_index():
     base_embeddings = embedder.encode(base_docs).tolist()
     collection.add(documents=base_docs, metadatas=base_meta, ids=base_ids, embeddings=base_embeddings)
 
-    # Load tickers and fetch today's data
+    # Load tickers and fetch today's data (skipped if no API key)
+    if not API_KEY:
+        print("⚠️ Skipping live stock fetch — set ALPHA_VANTAGE_KEY to enable.")
+        return
     tickers = get_tickers_from_stock_data_csv()
     for symbol in tickers:
         try:
@@ -132,6 +146,7 @@ Question:
 
 # === Main Loop ===
 if __name__ == "__main__":
+    check_ollama()
     preprocess_and_index()
     print("📊 RAGfolio is ready. Ask about stock insights, SHAP features, and more!\n")
     while True:

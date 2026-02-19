@@ -1,9 +1,32 @@
+import pickle
+import shutil
 import pandas as pd
+import shap
+import matplotlib.pyplot as plt
 import pytesseract
 from PIL import Image
 import chromadb
 from sentence_transformers import SentenceTransformer
 import subprocess
+
+# === Ollama Availability Check ===
+def check_ollama():
+    if shutil.which("ollama") is None:
+        print("❌ Ollama is not installed. Install from https://ollama.ai then run: ollama pull deepseek-r1")
+        exit(1)
+
+# === Generate SHAP Plot from Model ===
+def generate_shap_plot():
+    with open("xgb_model_subset.pkl", "rb") as f:
+        model = pickle.load(f)
+    X_test = pd.read_csv("X_test_subset.csv")
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X_test)
+    plt.figure()
+    shap.summary_plot(shap_values, X_test, show=False)
+    plt.savefig("Shap Plot.png", bbox_inches="tight")
+    plt.close()
+    print("✅ SHAP plot generated and saved to 'Shap Plot.png'")
 
 # === Initializing ChromaDB & Embedder ===
 client = chromadb.Client()
@@ -13,8 +36,8 @@ embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
 # ===  Preparing the Data ===
 def preprocess_and_index():
-    # CSV
-    csv_df = pd.read_csv("y_test_subset.csv")
+    # CSV — use feature data (X_test), not labels (y_test)
+    csv_df = pd.read_csv("X_test_subset.csv")
     csv_text = "CSV Summary:\n" + csv_df.describe().to_string() + "\n\nSample Rows:\n" + csv_df.head(5).to_string()
 
     # Image (SHAP plot)
@@ -63,8 +86,10 @@ Question:
 
 # === Main Loop ===
 if __name__ == "__main__":
+    check_ollama()
+    generate_shap_plot()
     preprocess_and_index()
-    print("RAGfolio is ready. How can I help you today !.\n")
+    print("RAGfolio is ready. How can I help you today!\n")
     while True:
         query = input("🧠 You: ")
         if query.lower() in ["exit", "quit"]:
