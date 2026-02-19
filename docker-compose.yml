@@ -1,0 +1,68 @@
+version: "3.9"
+
+# ── Services ──────────────────────────────────────────────────────────────────
+services:
+
+  # ── FastAPI backend ──────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stockrag_api
+    ports:
+      - "8000:8000"
+    environment:
+      # Alpha Vantage key — set in your shell or a .env file
+      ALPHA_VANTAGE_KEY: ${ALPHA_VANTAGE_KEY:-}
+      # Points to the ollama service defined below
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_MODEL: deepseek-r1
+    depends_on:
+      ollama:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Ollama (DeepSeek model runner) ───────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: stockrag_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      # persist downloaded models between restarts
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+    # Pull deepseek-r1 on first start if not already cached
+    entrypoint: >
+      sh -c "ollama serve &
+             sleep 5 &&
+             ollama pull deepseek-r1 &&
+             wait"
+
+# ── Volumes ───────────────────────────────────────────────────────────────────
+volumes:
+  ollama_models:
+    driver: local
+
+# ── Usage ─────────────────────────────────────────────────────────────────────
+#
+#   Build & start everything:
+#     docker compose up --build
+#
+#   First run will pull the deepseek-r1 model (~4 GB) — grab a coffee.
+#
+#   API endpoints once running:
+#     GET  http://localhost:8000/health
+#     POST http://localhost:8000/rag          body: {"question": "..."}
+#     GET  http://localhost:8000/shap/image
+#     GET  http://localhost:8000/shap/base64
+#     POST http://localhost:8000/index        (force re-index)
+#
+#   Interactive API docs:
+#     http://localhost:8000/docs   ← Swagger UI
+#     http://localhost:8000/redoc  ← ReDoc

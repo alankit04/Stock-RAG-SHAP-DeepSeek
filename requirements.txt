@@ -1,0 +1,31 @@
+# Web framework
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9
+pydantic==2.7.1
+
+# Data & ML
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.0
+xgboost==2.0.3
+shap==0.45.1
+
+# Model serving
+onnx==1.16.0
+onnxruntime==1.18.0
+
+# Visualization
+matplotlib==3.8.4
+
+# RAG / Embeddings
+chromadb==0.5.0
+sentence-transformers==3.0.1
+
+# OCR
+Pillow==10.3.0
+pytesseract==0.3.10
+
+# HTTP / Finance
+requests==2.32.3
+yfinance==0.2.40
