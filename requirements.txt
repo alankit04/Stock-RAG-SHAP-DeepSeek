@@ -27,8 +27,8 @@ requests>=2.31.0
 Pillow>=10.0.0
 pytesseract>=0.3.10
 
-# ── LLM API (DeepSeek via OpenAI-compatible endpoint) ───────────
-openai>=1.30.0
+# ── LLM (DeepSeek via Ollama) ───────────────────────────────────
+ollama>=0.2.0
 
 # ── Environment variable management ─────────────────────────────
 python-dotenv>=1.0.0
