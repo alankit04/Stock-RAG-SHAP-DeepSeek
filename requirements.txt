@@ -1,0 +1,34 @@
+# ── Core Data & ML ──────────────────────────────────────────────
+pandas>=2.0.0
+numpy>=1.26.0
+scikit-learn>=1.4.0
+
+# ── XGBoost (prediction model) ──────────────────────────────────
+xgboost>=2.0.0
+
+# ── SHAP (explainability) ───────────────────────────────────────
+shap>=0.45.0
+
+# ── ONNX (model export / inference) ─────────────────────────────
+onnx>=1.16.0
+onnxruntime>=1.18.0
+
+# ── Visualisation ───────────────────────────────────────────────
+matplotlib>=3.8.0
+
+# ── RAG / Vector Store ──────────────────────────────────────────
+chromadb>=0.5.0
+sentence-transformers>=3.0.0
+
+# ── HTTP / Alpha Vantage data fetch ─────────────────────────────
+requests>=2.31.0
+
+# ── Image / OCR (SHAP plot ingestion) ───────────────────────────
+Pillow>=10.0.0
+pytesseract>=0.3.10
+
+# ── LLM API (DeepSeek via OpenAI-compatible endpoint) ───────────
+openai>=1.30.0
+
+# ── Environment variable management ─────────────────────────────
+python-dotenv>=1.0.0
